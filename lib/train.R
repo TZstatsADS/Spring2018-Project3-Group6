@@ -7,7 +7,7 @@
 ### ADS Spring 2016
 
 
-##### Baseline Model: GBM #####
+################# Baseline Model: GBM ###################
 
 train_gbm <- function(data_train){
   
@@ -18,7 +18,7 @@ train_gbm <- function(data_train){
   start_time_gbm = Sys.time() # Model Start Time
   
   gbm.fit = gbm(Label~., 
-                data = dat_train,
+                data = data_train,
                 n.trees = 400,
                 distribution = "multinomial",
                 interaction.depth = 3, 

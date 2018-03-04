@@ -1,0 +1,69 @@
+---
+title: "draft"
+author: "Yuhao Kang (yk2758)"
+date: "2018/3/3"
+output: pdf_document
+---
+
+# Step 0. Install, Load packages 
+
+Because of using the package caret, when we trained model we also perform cross validation by using the `tuneGrid` and `traincontrol` arguement, so we ignore creating cross validation R file.
+
+```{r, warning=F, message=FALSE}
+packages.used=c("caret","gbm","EBImage")
+# check packages that need to be installed.
+packages.needed=setdiff(packages.used,
+intersect(installed.packages()[,1],
+packages.used))
+# install additional packages
+if(length(packages.needed)>0){
+install.packages(packages.needed, dependencies = TRUE)
+}
+
+library(caret)
+library(gbm)
+library(EBImage)
+
+source("../lib/train.R")
+source("../lib/test.R")
+source("../lib/data_split.R")
+```
+
+
+# Step 1. Construct Baseline Model
+
+# Step 1.1. Load Feature
+ 
+ We devided the whole training set into 'df_train' & 'df_test'
+ 
+ 'df_train' is the training data (80%)                               
+ 
+ 'df_test' is the testing data (20%) 
+ 
+```{r, eval=FALSE}
+df <- data_split("SIFT") 
+SIFT_train <- df$df_train
+SIFT_test <- df$df_test
+```
+
+# Step 1.2. Training Process of Baseline model
+ 
+```{r, eval = FALSE}
+baseline.result <- train_gbm(SIFT_train)
+save(baseline.result,file="../output/baseline.result.RData")
+```
+
+# Step 1.3. Test of Baseline model
+
+```{r}
+load("../output/baseline.result.RData")
+baseline.time <- baseline.result$time
+baseline.time
+
+training.accuracy <- 1-baseline.result[["fit"]][["train.error"]][400]
+training.accuracy
+test.result <- test_gbm(baseline.result, SIFT_test)
+test.accuracy <- 1 - mean(test.result != SIFT_test[,1])
+test.accuracy
+```
+
