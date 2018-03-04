@@ -2,36 +2,32 @@
 ### Train a classification model with training images ###
 #########################################################
 
-### Author: Yuting Ma
+### Author: Group 6
 ### Project 3
 ### ADS Spring 2016
 
 
-train <- function(dat_train, label_train, par=NULL){
-  
-  ### Train a Gradient Boosting Model (GBM) using processed features from training images
-  
-  ### Input: 
-  ###  -  processed features from images 
-  ###  -  class labels for training images
-  ### Output: training model specification
-  
-  ### load libraries
-  library("gbm")
-  
-  ### Train with gradient boosting model
-  if(is.null(par)){
-    depth <- 3
-  } else {
-    depth <- par$depth
-  }
-  fit_gbm <- gbm.fit(x=dat_train, y=label_train,
-                     n.trees=2000,
-                     distribution="bernoulli",
-                     interaction.depth=depth, 
-                     bag.fraction = 0.5,
-                     verbose=FALSE)
-  best_iter <- gbm.perf(fit_gbm, method="OOB", plot.it = FALSE)
+##### Baseline Model: GBM #####
 
-  return(list(fit=fit_gbm, iter=best_iter))
+train_gbm <- function(data_train){
+  
+  ###  dat_train: processed features from images also contains label
+  
+  library(gbm)
+  
+  start_time_gbm = Sys.time() # Model Start Time
+  
+  gbm.fit = gbm(Label~., 
+                data = dat_train,
+                n.trees = 400,
+                distribution = "multinomial",
+                interaction.depth = 3, 
+                shrinkage = 0.2,
+                n.minobsinnode = 30,
+                verbose=FALSE)
+  end_time_gbm = Sys.time() # Model End time
+  gbm_time = end_time_gbm - start_time_gbm #Total Running Time
+  
+  
+  return(list(fit = gbm.fit, time = gbm_time))
 }
