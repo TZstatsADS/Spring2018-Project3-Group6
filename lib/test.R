@@ -1,10 +1,16 @@
-######################################################
-### Fit the classification model with testing data ###
-######################################################
+### Test our model ###
 
 ### Author: Group 6
 ### Project 3
-### ADS Spring 2016
+### ADS Spring 2018
+
+
+########### General Model Test Function ###########
+test = function(fit_train, dat_test){
+  pred = predict(fit_train$fit, newdata = dat_test)
+  return(pred)
+}
+
 
 ########### Testing Function For GBM Model ###########
 

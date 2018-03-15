@@ -30,7 +30,7 @@ source("../lib/data_split.R")
 ```
 
 
-# Step 1. Construct Baseline Model
+# Step 1. Model Comparsion Based on SIFT Feature
 
 # Step 1.1. Load Feature
  
@@ -46,24 +46,87 @@ SIFT_train <- df$df_train
 SIFT_test <- df$df_test
 ```
 
-# Step 1.2. Training Process of Baseline model
+# Step 1.2. Baseline (GBM+SIFT)
+# Step 1.2.1. Training Process of Baseline model
  
 ```{r, eval = FALSE}
 baseline.result <- train_gbm(SIFT_train)
 save(baseline.result,file="../output/baseline.result.RData")
 ```
 
-# Step 1.3. Test of Baseline model
+# Step 1.2.2. Test of Baseline model
 
 ```{r}
 load("../output/baseline.result.RData")
 baseline.time <- baseline.result$time
 baseline.time
 
-training.accuracy <- 1-baseline.result[["fit"]][["train.error"]][400]
-training.accuracy
-test.result <- test_gbm(baseline.result, SIFT_test)
-test.accuracy <- 1 - mean(test.result != SIFT_test[,1])
-test.accuracy
+# training.accuracy <- 1-baseline.result[["fit"]][["train.error"]][400]
+# training.accuracy
+baseline.test.result <- test_gbm(baseline.result, SIFT_test)
+baseline.test.accuracy <- 1 - mean(baseline.test.result != SIFT_test[,1])
+baseline.test.accuracy
 ```
 
+# Step 1.3. SVM (SVM + SIFT)
+# Step 1.3.1. Training Process of SVM model
+ 
+```{r, eval = FALSE}
+svm_SIFT.result <- train_svm(SIFT_train)
+save(svm_SIFT.result,file="../output/svm_SIFT.result.RData")
+```
+
+# Step 1.3.2. Test of SVM model 
+
+```{r}
+load("../output/svm_SIFT.result.RData")
+svm_SIFT.result.time <- svm_SIFT.result$time
+svm_SIFT.result.time
+
+
+svm_SIFT.test.result <- test(svm_SIFT.result, SIFT_test)
+svm_SIFT.test.accuracy <- 1 - mean(svm_SIFT.test.result != SIFT_test[,1])
+svm_SIFT.test.accuracy
+```
+
+# Step 1.4. Random Forest (Random Forest + SIFT)
+# Step 1.4.1 Training Process of SVM model
+ 
+```{r, eval = FALSE}
+rf_SIFT.result <- train_rf(SIFT_train)
+save(rf_SIFT.result,file="../output/rf_SIFT.result.RData")
+```
+
+# Step 1.4.2 Test of Random Forest Model
+
+```{r}
+load("../output/rf_SIFT.result.RData")
+rf_SIFT.result.time <- rf_SIFT.result$time
+rf_SIFT.result.time
+
+
+rf_SIFT.test.result <- test(rf_SIFT.result, SIFT_test)
+rf_SIFT.test.accuracy <- 1 - mean(rf_SIFT.test.result != SIFT_test[,1])
+rf_SIFT.test.accuracy
+```
+
+# Step 1.5. Logistic Regression (Logistic Regression + SIFT)
+# Step 1.5.1 Training Process of Logistic Regression model
+ 
+```{r, eval = FALSE}
+lr_SIFT.result <- train_lr(SIFT_train)
+save(lr_SIFT.result,file="../output/lr_SIFT.result.RData")
+```
+
+# Step 1.5.2 Test of Logistic Regression Model
+
+```{r}
+load("../output/lr_SIFT.result.RData")
+lr_SIFT.result.time <- lr_SIFT.result$time
+lr_SIFT.result.time
+
+
+lr_SIFT.test.result <- test(lr_SIFT.result, SIFT_test)
+lr_SIFT.test.accuracy <- 1 - mean(lr_SIFT.test.result != SIFT_test[,1])
+lr_SIFT.test.accuracy
+```
