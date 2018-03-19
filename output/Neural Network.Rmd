@@ -76,7 +76,7 @@ Prediction
 nn <- neuralnet(f,
                 data=train.data,
                 hidden=10,
-                act.fct="logistic",
+                act.fct="tanh",
                 linear.output=FALSE,
                 lifesign="minimal")
 pr.nn <- compute(nn, test.data[,4:ncol(test.data)])
