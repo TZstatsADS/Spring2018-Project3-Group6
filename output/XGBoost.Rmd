@@ -38,5 +38,5 @@ model <- xgboost(data = as.matrix(train.data), label = train.target,
                  nrounds = 2, objective = "multi:softmax", num_class = 4)
 
 xgb.preds <- predict(model, as.matrix(test.data[,-target.i]))
-mean(xgb.preds == test.data$label)
+mean(xgb.preds == as.numeric(test.data$label))
 ```
