@@ -9,12 +9,18 @@ Post your title, team members, project abstract and a contribution statement in 
 Below is an example. If no contribution statement is provided, we will insert a default statement that goes "**All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement**. "
 
 ---
-Sample project README statement.
+Contribution statement:
 
-Project xxx
+Project 3 Team members:
 
-Team members: Avi Bond, Comma Deed, En Funn, Gem Hon
+Chen, Mengqi mc4396@columbia.edu
+He, Shan sh3667@columbia.edu
+Kang, Yuhao yk2758@columbia.edu
+Utomo, Michael mu2251@columbia.edu
+Yu, Linna ly2424@columbia.edu
 
-Summary: In this project, we developed a new method and improved the classification accuracy for images of cats and dogs to 99.9%
+Summary: 
 
-[Contribution Statement] AB, CD, EF and GH designed the study. AB and CD developed baseline classification model for evaluation. EF and GH explored feature engineering for improving the baseline model. AB, EF and GH discussed and designed the model evaluation protocol. CD carried out the computation for model evaluation. All team members contributed to the GitHub repository and prepared the presentation. All team members approve our work presented in our GitHub repository including this contribution statement.
+In this project, we developed a new method and improved the classification accuracy for images of blueberry muffins, fried chickens and dogs to 78% 
+
+Both four of our team members designed the study. Kang developed baseline classification model for evaluation. He Shan and Michael explored feature engineering for improving the baseline model. Mengqi and Linna discussed and designed the model evaluation protocol. He Shan carried out the computation for model evaluation. All team members contributed to the GitHub repository and prepared the presentation. All team members approve our work presented in our GitHub repository including this contribution statement.
