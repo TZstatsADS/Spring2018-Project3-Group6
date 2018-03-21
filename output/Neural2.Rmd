@@ -46,16 +46,16 @@ Set up formula
 n <- names(train.data)
 f <- as.formula(paste("l1 + l2 + l3 ~",paste(n[!n %in% c("l1","l2","l3")], collapse="+")))
 ```
-Problem:Curse of Dimensionality
 
-Gridsearch
+Gridsearch: Creating hyperparameter
 Allows to train on all combinations of tuning parameters
 ```{r}
-nn.tune <- expand.grid(hidden=seq(0,100, by=10),
-                       act.fct=c("logistic", "tanh"))
+nn.tune <- expand.grid(hidden=seq(0,10, by=1),
+                       act.fct=c("logistic"))
 nn.tune$accuracy <- numeric(nrow(nn.tune))
 
 for(i in 1:nrow(nn.tune)){
+  t1 = Sys.time()
 nn <- neuralnet(f,
                 data=train.data,
                 hidden=nn.tune$hidden[i],
@@ -65,5 +65,28 @@ nn <- neuralnet(f,
 pr.nn <- compute(nn, test.data[1:2000])
 nn.pred <- apply(pr.nn$net.result, 1, which.max)
 nn.tune$accuracy[i] <- mean(nn.pred==test.target)
+t2 <- Sys.time()
+print(t2-t1)
 }
 ```
+
+Best parameter
+```{r}
+best.params <- nn.tune[which.max(nn.tune$accuracy), c('hidden', 'act.fct')]
+#Retrain our best model
+t1_1 = Sys.time()
+nn <- neuralnet(f,
+                data=train.data,
+                hidden=best.params$hidden,
+                act.fct=best.params$act.fct,
+                linear.output=FALSE,
+                lifesign="minimal")
+pr.nn <- compute(nn, test.data[1:2000])
+nn.pred <- apply(pr.nn$net.result, 1, which.max)
+best.accuracy <- mean(nn.pred==test.target)
+t2_1 <- Sys.time()
+print(t2_1-t1_1)
+print(paste('Our best accuracy was', best.accuracy))
+
+```
+
