@@ -30,7 +30,7 @@ Team members:
 
 Summary: In this project, we developed a new method and improved the classification accuracy for images of blueberry muffins, fried chickens and dogs to 78%
 [Contribution Statement] 
-Both four of our team members designed the study. Kang developed baseline classification model for evaluation. He Shan and Michael explored feature engineering for improving the baseline model. Mengqi and Linna discussed and designed the model evaluation protocol. He Shan carried out the computation for model evaluation. All team members contributed to the GitHub repository and prepared the presentation. All team members approve our work presented in our GitHub repository including this contribution statement.
+All four of our team members designed the study. Kang developed baseline classification model for evaluation. He Shan and Michael explored feature engineering for improving the baseline model. Mengqi and Linna discussed and designed the model evaluation protocol. He Shan carried out the computation for model evaluation. All team members contributed to the GitHub repository and prepared the presentation. All team members approve our work presented in our GitHub repository including this contribution statement.
 
 
 
