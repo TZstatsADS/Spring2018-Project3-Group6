@@ -65,7 +65,7 @@ baseline_LBP.time <- baseline_LBP$time
 baseline_LBP.time
 
 baseline.test.result_LBP <- test_gbm(baseline_LBP, test_LBP)
-baseline.test.accuracy_LBP <- 1 - mean(baseline.test.result_LBP != test_LBP[,1])
+baseline.test.accuracy_LBP <- mean(baseline.test.result_LBP == test_LBP[,1])
 baseline.test.accuracy_LBP
 ```
 
@@ -86,7 +86,7 @@ SVM_LBP.time <- SVM_LBP$time
 SVM_LBP.time
 
 SVM.test.result_LBP <- test(SVM_LBP, test_LBP)
-SVM.test.accuracy_LBP <- 1 - mean(SVM.test.result_LBP != test_LBP[,1])
+SVM.test.accuracy_LBP <- mean(SVM.test.result_LBP == test_LBP[,1])
 SVM.test.accuracy_LBP
 ```
 
@@ -107,7 +107,7 @@ RF_LBP.time <- RF_LBP$time
 RF_LBP.time
 
 RF.test.result_LBP <- test(RF_LBP, test_LBP)
-RF.test.accuracy_LBP <- 1 - mean(RF.test.result_LBP != test_LBP[,1])
+RF.test.accuracy_LBP <- mean(RF.test.result_LBP == test_LBP[,1])
 RF.test.accuracy_LBP
 ```
 
@@ -128,7 +128,7 @@ LR_LBP.time <- LR_LBP$time
 LR_LBP.time
 
 LR.test.result_LBP <- test(LR_LBP, test_LBP)
-LR.test.accuracy_LBP <- 1 - mean(LR.test.result_LBP != test_LBP[,1])
+LR.test.accuracy_LBP <- mean(LR.test.result_LBP == test_LBP[,1])
 LR.test.accuracy_LBP
 ```
 
