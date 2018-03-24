@@ -33,10 +33,12 @@ target.i <- which(colnames(df) == 'label')
 train.data <- df[-test.i, -target.i]
 train.target <- df[-test.i, target.i]
 
-
+t1=Sys.time()
 model <- xgboost(data = as.matrix(train.data), label = train.target,
                  nrounds = 2, objective = "multi:softmax", num_class = 4)
 
 xgb.preds <- predict(model, as.matrix(test.data[,-target.i]))
 mean(xgb.preds == as.numeric(test.data$label))
+t2=Sys.time()
+t2-t1
 ```

@@ -21,6 +21,7 @@ levels(df$label)[levels(df$label)=="2"] <- "1"
 levels(df$label)[levels(df$label)=="3"] <- "2"
 ```
 
+
 XGBoost Algorithm
 ```{r}
 set.seed(031918)
