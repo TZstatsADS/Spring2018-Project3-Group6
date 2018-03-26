@@ -115,7 +115,7 @@ RF.test.accuracy_hog
 #### 2.4.1 Logistic Regression training
 
 ```{r}
-LR_hog <- train_lr(train_hog)
+LR_hog <- train_lr.cv(train_hog)
 save(LR_hog,file="../output/LR_hog.RData")
 ```
 
