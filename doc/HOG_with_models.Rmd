@@ -39,7 +39,7 @@ source("../lib/data_split.R")
 ### 1. Retrieve and split the training and test data from the dataset.
 
 ```{r}
-datasplit_hog <- data_split("hog_extraction")
+datasplit_hog <- data_split("hog_extraction1")
 
 train_hog <- datasplit_hog$df_train
 

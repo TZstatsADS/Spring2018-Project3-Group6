@@ -22,6 +22,7 @@ train_gbm <- function(data_train){
                 interaction.depth = 3, 
                 shrinkage = 0.2,
                 n.minobsinnode = 30,
+                cv.fold = 10,
                 verbose=FALSE)
   end_time_gbm = Sys.time() # Model End time
   gbm_time = end_time_gbm - start_time_gbm #Total Running Time
@@ -36,7 +37,7 @@ train_svm = function(data_train){
   
   library(e1071)
   
-  control = trainControl(method = 'cv', number = 2)
+  control = trainControl(method = 'cv', number = 10)
   
   svmGrid = expand.grid(C = c(0.5,1,2))
   
@@ -60,7 +61,7 @@ train_svm = function(data_train){
 
 train_rf = function(data_train){
   
-  control = trainControl(method = 'cv', number = 2)
+  control = trainControl(method = 'cv', number = 10)
   
   rfGrid = expand.grid(mtry = floor(sqrt(ncol(data_train)) * 0.95) : floor(sqrt(ncol(data_train) * 1.05)))
   
