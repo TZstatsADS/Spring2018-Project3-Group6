@@ -1,0 +1,137 @@
+---
+title: "Untitled"
+author: "Mengqi Chen"
+date: "3/25/2018"
+output: word_document
+---
+# Step 2. Model Comparsion Based on RGB Feature
+
+```{r, warning=FALSE}
+packages.used=c("caret","gbm","EBImage","e1071", "DMwR", "nnet", "randomForest","OpenImageR","DT", "caTools","mxnet", "pbapply", "ggthemes")
+
+packages.needed=setdiff(packages.used,
+intersect(installed.packages()[,1],
+packages.used))
+
+if(length(packages.needed)>0){
+ install.packages(packages.needed, dependencies = TRUE)
+}
+
+library(caret)
+library(gbm)
+library(EBImage)
+library(caret)
+library(gbm)
+library(e1071)
+library(DMwR)
+library(randomForest)
+library(nnet)
+library(OpenImageR)
+library(DT)
+library(caTools)
+library(EBImage)
+#library(mxnet)
+library(pbapply)
+library(ggthemes)
+
+source("../lib/train.R")
+source("../lib/test.R")
+source("../lib/data_split.R")
+```
+
+# Step 2.1 Retrieve and split the training and test data from the dataset
+
+```{r}
+datasplit_rgb <- data_split("rgb_feature")
+train_rgb <- datasplit_rgb$df_train
+test_rgb <- datasplit_rgb$df_test
+```
+
+# Step 2.2 GBM (GBM + RBG)
+
+```{r}
+GBM_rgb <- train_gbm(train_rgb)
+save(GBM_rgb,file="../output/GBM_rgb.RData")
+
+load("../output/GBM_rgb.RData")
+GBM_rgb.time <- GBM_rgb$time
+GBM_rgb.time
+
+GBM.test.result_rgb <- test_gbm(GBM_rgb, test_rgb)
+GBM.test.accuracy_rgb <- mean(GBM.test.result_rgb == test_rgb[,1])
+GBM.test.accuracy_rgb
+```
+
+# Step 2.3 SVM (SVM + RGB)
+
+```{r}
+svm_rgb.result <- train_svm(train_rgb)
+save(svm_rgb.result,file="../output/svm_rgb.result.RData")
+load("../output/svm_rgb.result.RData")
+svm_rgb.result.time <- svm_rgb.result$time
+svm_rgb.result.time
+svm_rgb.test.result <- test(svm_rgb.result, test_rgb)
+svm_rgb.test.accuracy <- 1 - mean(svm_rgb.test.result != test_rgb[,1])
+svm_rgb.test.accuracy
+```
+
+# Step 2.4 Random Forest (Random Forest + RGB)
+
+```{r}
+rf_rgb.result <- train_rf(train_rgb)
+save(rf_rgb.result,file="../output/rf_rgb.result.RData")
+load("../output/rf_rgb.result.RData")
+rf_rgb.result.time <- rf_rgb.result$time
+rf_rgb.result.time
+rf_rgb.test.result <- test(rf_rgb.result, test_rgb)
+rf_rgb.test.accuracy <- 1 - mean(rf_rgb.test.result != test_rgb[,1])
+rf_rgb.test.accuracy
+```
+
+# Step 2.5 Logistic Regression (Logistic Regression + RGB)
+
+```{r}
+lr_rgb.result <- train_lr.cv(train_rgb)
+save(lr_rgb.result,file="../output/lr_rgb.result.RData")
+
+load("../output/lr_rgb.result.RData")
+lr_rgb.result.time <- lr_rgb.result$time
+lr_rgb.result.time
+
+lr_rgb.test.result <- test(lr_rgb.result,test_rgb)
+lr_rgb.test.accuracy <- 1 - mean(lr_rgb.test.result !=test_rgb[,1])
+lr_rgb.test.accuracy
+```
+
+# Step 2.6. XGBoost (XGBoost + RGB)
+
+```{r}
+library(xgboost)
+df <- read.csv("/Users/mengqichen/Documents/Github/Spring2018-Project3-Group6/output/rgb_feature.csv", header=FALSE)
+labels <- read.csv("/Users/mengqichen/Documents/Github/Spring2018-Project3-Group6/data/label_train.csv")
+df$label <- as.factor(labels$label)
+df$V1 <- NULL
+
+# Relabel factors for XGBoost specific num_classes requirement
+levels(df$label)[levels(df$label)=="1"] <- "0"
+levels(df$label)[levels(df$label)=="2"] <- "1"
+levels(df$label)[levels(df$label)=="3"] <- "2"
+
+#XGBoost Algorithm
+set.seed(031918)
+test.i <- sample(1:nrow(df), .3*nrow(df), replace=FALSE)
+test.data <- df[test.i,]
+train.data <- df[-test.i,]
+
+target.i <- which(colnames(df) == 'label')
+train.data <- df[-test.i, -target.i]
+train.target <- df[-test.i, target.i]
+
+t1=Sys.time()
+model <- xgb.cv(data = as.matrix(train.data), label = train.target, nfold=10,
+                 nrounds = 2, objective = "multi:softmax", num_class = 4)
+1-model$evaluation_log$test_merror_mean[2]
+t2=Sys.time()
+t2-t1
+```
+
