@@ -8,11 +8,11 @@ Term: Spring 2018
 
 + Team # 6
 + Team members
-	+ team member 1 Chen, Mengqi
-	+ team member 2 He, Shan
-	+ team member 3 Kang, Yuhao
-	+ team member 4 Utomo, Michael
-	+ team member 5 Yu, Linna
+	+ team member 1 Chen, Mengqi (mc4396)
+	+ team member 2 He, Shan (sh3667)
+	+ team member 3 Kang, Yuhao (yk2758)
+	+ team member 4 Utomo, Michael (mu2251)
+	+ team member 5 Yu, Linna (ly2424)
 
 + Project summary: 
 
