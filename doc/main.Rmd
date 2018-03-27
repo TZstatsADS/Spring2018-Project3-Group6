@@ -1,8 +1,9 @@
 ---
-title: "main"
+title: "Main"
 output:
-  word_document: default
+  pdf_document: default
   html_notebook: default
+  word_document: default
 ---
 
 # Step 0. Install, Load packages 
@@ -10,14 +11,14 @@ output:
 Because of using the package caret, when we trained model we also perform cross validation by using the `tuneGrid` and `traincontrol` arguement, so we ignore creating cross validation R file.
 
 ```{r}
-packages.used=c("caret","gbm","EBImage","e1071", "DMwR", "nnet", "randomForest","OpenImageR","DT", "caTools","mxnet", "pbapply", "ggthemes")
+packages.used=c("caret","gbm","EBImage","e1071", "DMwR", "nnet", "randomForest","OpenImageR","DT", "caTools", "pbapply", "ggthemes","xgboost")
 
 packages.needed=setdiff(packages.used,
 intersect(installed.packages()[,1],
 packages.used))
 
 if(length(packages.needed)>0){
- install.packages(packages.needed, dependencies = TRUE)
+ install.packages(packages.needed, dependencies = TRUE,repos = "http://cran.us.r-project.org")
 }
 
 library(caret)
@@ -33,7 +34,6 @@ library(OpenImageR)
 library(DT)
 library(caTools)
 library(EBImage)
-#library(mxnet)
 library(pbapply)
 library(ggthemes)
 
@@ -61,8 +61,6 @@ load("../output/baseline.result.RData")
 baseline.time <- baseline.result$time
 baseline.time
 
-# training.accuracy <- 1-baseline.result[["fit"]][["train.error"]][400]
-# training.accuracy
 baseline.test.result <- test_gbm(baseline.result, datasplit_sift$df_test)
 baseline.test.accuracy <- 1 - mean(baseline.test.result != datasplit_sift$df_test[,1])
 baseline.test.accuracy
@@ -135,104 +133,365 @@ lr_SIFT.test.accuracy
 # Step 1.6. Neural network (Neural network+SIFT)
 
 ```{r}
-library(neuralnet)
-library(nnet)
-df <- read.csv('SIFT_train.csv', header=FALSE)
-labels <- read.csv('label_train.csv')
-df$label <- as.factor(labels$label) #add a column called label to df
-df$V1 <- NULL
-
-# Scale Data
-scl <- function(x){(x-min(x))/(max(x)-min(x))}
-target.i <- which(colnames(df)=='label')
-df[,-target.i] <- data.frame(lapply(df[,-target.i], scl))
-
-# Dummy code Outcome Variable
-# Create 3 variables that pertains the labels are that being predicted
-df$l1 <- ifelse(df$label=="1", 1,0)
-df$l2 <- ifelse(df$label=="2", 1,0)
-df$l3 <- ifelse(df$label=="3", 1,0)
-df$label <- NULL
-
-# Split into training and test 
-set.seed(031818)
-test.i <- sample(1:nrow(df), .3*nrow(df), replace=FALSE)
-test.data <- df[test.i,]
-train.data <- df[-test.i,]
-test.target <- labels[test.i, 'label']
-
-# Set up formula
-n <- names(train.data)
-f <- as.formula(paste("l1 + l2 + l3 ~",paste(n[!n %in% c("l1","l2","l3")], collapse="+")))
-
-# Gridsearch: Creating hyperparameter, allows to train on all combinations of tuning parameters
-nn.tune <- expand.grid(hidden=seq(0,10, by=1),
-                       act.fct=c("logistic"))
-nn.tune$accuracy <- numeric(nrow(nn.tune))
-
-for(i in 1:nrow(nn.tune)){
-  t1 = Sys.time()
-nn <- neuralnet(f,
-                data=train.data,
-                hidden=nn.tune$hidden[i],
-                act.fct=nn.tune$act.fct[i],
-                linear.output=FALSE,
-                lifesign="minimal")
-pr.nn <- compute(nn, test.data[1:2000])
-nn.pred <- apply(pr.nn$net.result, 1, which.max)
-nn.tune$accuracy[i] <- mean(nn.pred==test.target)
-t2 <- Sys.time()
-print(t2-t1)
-}
-
-# Best parameter
-best.params <- nn.tune[which.max(nn.tune$accuracy), c('hidden', 'act.fct')]
-#Retrain our best model
-t1_1 = Sys.time()
-nn <- neuralnet(f,
-                data=train.data,
-                hidden=best.params$hidden,
-                act.fct=best.params$act.fct,
-                linear.output=FALSE,
-                lifesign="minimal")
-pr.nn <- compute(nn, test.data[1:2000])
-nn.pred <- apply(pr.nn$net.result, 1, which.max)
-best.accuracy <- mean(nn.pred==test.target)
-t2_1 <- Sys.time()
-print(t2_1-t1_1)
-print(paste('Our best accuracy was', best.accuracy))
+# library(neuralnet)
+# library(nnet)
+# df <- read.csv('SIFT_train.csv', header=FALSE)
+# labels <- read.csv('label_train.csv')
+# df$label <- as.factor(labels$label) #add a column called label to df
+# df$V1 <- NULL
+# 
+# # Scale Data
+# scl <- function(x){(x-min(x))/(max(x)-min(x))}
+# target.i <- which(colnames(df)=='label')
+# df[,-target.i] <- data.frame(lapply(df[,-target.i], scl))
+# 
+# # Dummy code Outcome Variable
+# # Create 3 variables that pertains the labels are that being predicted
+# df$l1 <- ifelse(df$label=="1", 1,0)
+# df$l2 <- ifelse(df$label=="2", 1,0)
+# df$l3 <- ifelse(df$label=="3", 1,0)
+# df$label <- NULL
+# 
+# # Split into training and test
+# set.seed(031818)
+# test.i <- sample(1:nrow(df), .3*nrow(df), replace=FALSE)
+# test.data <- df[test.i,]
+# train.data <- df[-test.i,]
+# test.target <- labels[test.i, 'label']
+# 
+# # Set up formula
+# n <- names(train.data)
+# f <- as.formula(paste("l1 + l2 + l3 ~",paste(n[!n %in% c("l1","l2","l3")], collapse="+")))
+# 
+# # Gridsearch: Creating hyperparameter, allows to train on all combinations of tuning parameters
+# nn.tune <- expand.grid(hidden=seq(0,10, by=1),
+#                        act.fct=c("logistic"))
+# nn.tune$accuracy <- numeric(nrow(nn.tune))
+# 
+# for(i in 1:nrow(nn.tune)){
+#   t1 = Sys.time()
+# nn <- neuralnet(f,
+#                 data=train.data,
+#                 hidden=nn.tune$hidden[i],
+#                 act.fct=nn.tune$act.fct[i],
+#                 linear.output=FALSE,
+#                 lifesign="minimal")
+# pr.nn <- compute(nn, test.data[1:2000])
+# nn.pred <- apply(pr.nn$net.result, 1, which.max)
+# nn.tune$accuracy[i] <- mean(nn.pred==test.target)
+# t2 <- Sys.time()
+# print(t2-t1)
+# }
+# 
+# # Best parameter
+# best.params <- nn.tune[which.max(nn.tune$accuracy), c('hidden', 'act.fct')]
+# #Retrain our best model
+# t1_1 = Sys.time()
+# nn <- neuralnet(f,
+#                 data=train.data,
+#                 hidden=best.params$hidden,
+#                 act.fct=best.params$act.fct,
+#                 linear.output=FALSE,
+#                 lifesign="minimal")
+# pr.nn <- compute(nn, test.data[1:2000])
+# nn.pred <- apply(pr.nn$net.result, 1, which.max)
+# best.accuracy <- mean(nn.pred==test.target)
+# t2_1 <- Sys.time()
+# print(t2_1-t1_1)
+# print(paste('Our best accuracy was', best.accuracy))
 ```
 
 # Step 1.7. XGBoost ( XGBoost + SIFT)
 
-```{r}
-library(xgboost)
-df <- read.csv('SIFT_train.csv', header=FALSE)
-labels <- read.csv('label_train.csv')
-df$label <- as.factor(labels$label)
-df$V1 <- NULL
-
-# Relabel factors for XGBoost specific num_classes requirement
-levels(df$label)[levels(df$label)=="1"] <- "0"
-levels(df$label)[levels(df$label)=="2"] <- "1"
-levels(df$label)[levels(df$label)=="3"] <- "2"
-
-#XGBoost Algorithm
-set.seed(031918)
-test.i <- sample(1:nrow(df), .3*nrow(df), replace=FALSE)
-test.data <- df[test.i,]
-train.data <- df[-test.i,]
-
-target.i <- which(colnames(df) == 'label')
-train.data <- df[-test.i, -target.i]
-train.target <- df[-test.i, target.i]
-
-t1=Sys.time()
-model <- xgboost(data = as.matrix(train.data), label = train.target,
-                 nrounds = 2, objective = "multi:softmax", num_class = 4)
-
-xgb.preds <- predict(model, as.matrix(test.data[,-target.i]))
-mean(xgb.preds == as.numeric(test.data$label))
-t2=Sys.time()
-t2-t1
+```{r echo=TRUE}
+# library(xgboost)
+# df <- read.csv('../data/SIFT_train.csv', header=FALSE)
+# labels <- read.csv('../data/label_train.csv')
+# df$label <- as.factor(labels$label)
+# df$V1 <- NULL
+# 
+# # Relabel factors for XGBoost specific num_classes requirement
+# levels(df$label)[levels(df$label)=="1"] <- "0"
+# levels(df$label)[levels(df$label)=="2"] <- "1"
+# levels(df$label)[levels(df$label)=="3"] <- "2"
+# 
+# #XGBoost Algorithm
+# set.seed(031918)
+# test.i <- sample(1:nrow(df), .3*nrow(df), replace=FALSE)
+# test.data <- df[test.i,]
+# train.data <- df[-test.i,]
+# 
+# target.i <- which(colnames(df) == 'label')
+# train.data <- df[-test.i, -target.i]
+# train.target <- df[-test.i, target.i]
+# 
+# t1=Sys.time()
+# model <- xgb.cv(data = as.matrix(train.data), label = train.target, nfold=10,
+#                  nrounds = 2, objective = "multi:softmax", num_class = 4)
+# 1-model$evaluation_log$test_merror_mean[2]
+# t2=Sys.time()
+# t2-t1
+# model$time = t2-t1
+# save(model,file="../output/XGBoost_SIFT.result.RData")
 ```
+
+```{r}
+load("../output/XGBoost_SIFT.result.RData")
+XGBoost_SIFT.test.accuracy <- 1-model$evaluation_log$test_merror_mean[2]
+XGBoost_SIFT.test.accuracy 
+model$time
+```
+# Step 2. Model Comparsion Based on HOG Feature
+
+# Step 2.1 Retrieve and split the training and test data from the dataset
+
+```{r}
+datasplit_hog <- data_split("hog_extraction1")
+train_hog <- datasplit_hog$df_train
+test_hog <- datasplit_hog$df_test
+```
+
+# Step 2.2 GBM (GBM + HOG)
+
+# Step 2.2.1 Training Process of SVM model
+
+```{r}
+# GBM_hog <- train_gbm(train_hog)
+# save(GBM_hog,file="../output/GBM_hog.RData")
+```
+
+# Step 2.2.2 Test of GBM Model
+
+```{r}
+load("../output/GBM_hog.RData")
+GBM_hog.time <- GBM_hog$time
+GBM_hog.time
+
+GBM.test.result_hog <- test_gbm(GBM_hog, test_hog)
+GBM.test.accuracy_hog <- mean(GBM.test.result_hog == test_hog[,1])
+GBM.test.accuracy_hog
+```
+
+# Step 2.3 SVM (SVM + HOG)
+
+# Step 2.3.1 Training Process of SVM model
+
+```{r}
+# SVM_hog <- train_svm(train_hog)
+# save(SVM_hog,file="../output/SVM_hog.RData")
+```
+
+# Step 2.3.2 Test of SVM Model
+
+```{r}
+load("../output/SVM_hog.RData")
+SVM_hog.time <- SVM_hog$time
+SVM_hog.time
+
+SVM.test.result_hog <- test(SVM_hog, test_hog)
+SVM.test.accuracy_hog <- mean(SVM.test.result_hog == test_hog[,1])
+SVM.test.accuracy_hog
+```
+
+# Step 2.4 Random Forest (Random Forest + HOG)
+
+# Step 2.4.1 Training Process of Random Forest model
+
+```{r}
+# RF_hog <- train_rf(train_hog)
+# save(RF_hog,file="../output/RF_hog.RData")
+```
+
+# Step 2.4.2 Test of Random Forest Model
+
+```{r}
+load("../output/RF_hog.RData")
+RF_hog.time <- RF_hog$time
+RF_hog.time
+
+RF.test.result_hog <- test(RF_hog, test_hog)
+RF.test.accuracy_hog <- mean(RF.test.result_hog == test_hog[,1])
+RF.test.accuracy_hog
+```
+
+# Step 2.5 Logistic Regression (Logistic Regression + HOG)
+
+# Step 2.5.1 Training Process of Logistic Regression model
+
+```{r}
+# LR_hog <- train_lr.cv(train_hog)
+# save(LR_hog,file="../output/LR_hog.RData")
+```
+
+# Step 2.5.2 Test of Logistic Regression Model
+
+```{r}
+load("../output/LR_hog.RData")
+LR_hog.time <- LR_hog$time
+LR_hog.time
+
+LR.test.result_hog <- test(LR_hog, test_hog)
+LR.test.accuracy_hog <- mean(LR.test.result_hog == test_hog[,1])
+LR.test.accuracy_hog
+```
+
+# Step 2.6. XGBoost (XGBoost + HOG)
+```{r}
+# # the procedure would be as the same as the SIFT feature part but change the feature file int othe HOG features
+# library(xgboost)
+# df <- read.csv('../output/hog_extraction1.csv', header=FALSE)
+# labels <- read.csv("../data/label_train.csv")
+# df$label <- as.factor(labels$label)
+# df$V1 <- NULL
+# 
+# # Relabel factors for XGBoost specific num_classes requirement
+# levels(df$label)[levels(df$label)=="1"] <- "0"
+# levels(df$label)[levels(df$label)=="2"] <- "1"
+# levels(df$label)[levels(df$label)=="3"] <- "2"
+# 
+# # XGBoost Algorithm
+# set.seed(031918)
+# test.i <- sample(1:nrow(df), .3*nrow(df), replace=FALSE)
+# test.data <- df[test.i,]
+# train.data <- df[-test.i,]
+# 
+# target.i <- which(colnames(df) == 'label')
+# train.data <- df[-test.i, -target.i]
+# train.target <- df[-test.i, target.i]
+# 
+# t1=Sys.time()
+# model2 <- xgb.cv(data = as.matrix(train.data), label = train.target, nfold=10,
+#                  nrounds = 2, objective = "multi:softmax", num_class = 4)
+# t2=Sys.time()
+# t2-t1
+# model2$time = t2-t1
+# save(model2,file="../output/XGBoost_HOG.result.RData")
+```
+
+
+```{r}
+load("../output/XGBoost_HOG.result.RData")
+XGBoost_HOG.test.accuracy <- 1-model2$evaluation_log$test_merror_mean[2]
+XGBoost_HOG.test.accuracy 
+model2$time
+```
+
+
+# Step 3. Model Comparsion Based on RGB Feature
+
+# Step 3.1 Retrieve and split the training and test data from the dataset
+
+```{r}
+datasplit_rgb <- data_split("rgb_feature")
+train_rgb <- datasplit_rgb$df_train
+test_rgb <- datasplit_rgb$df_test
+```
+
+# Step 3.2 GBM (GBM + RBG)
+
+```{r}
+# GBM_rgb <- train_gbm(train_rgb)
+# save(GBM_rgb,file="../output/GBM_rgb.RData")
+```
+
+```{r}
+load("../output/GBM_rgb.RData")
+GBM_rgb.time <- GBM_rgb$time
+GBM_rgb.time
+
+GBM.test.result_rgb <- test_gbm(GBM_rgb, test_rgb)
+GBM.test.accuracy_rgb <- mean(GBM.test.result_rgb == test_rgb[,1])
+GBM.test.accuracy_rgb
+```
+
+
+# Step 3.3 SVM (SVM + RGB)
+
+```{r}
+# svm_rgb.result <- train_svm(train_rgb)
+# save(svm_rgb.result,file="../output/svm_rgb.result.RData")
+```
+
+```{r}
+load("../output/svm_rgb.result.RData")
+svm_rgb.result.time <- svm_rgb.result$time
+svm_rgb.result.time
+svm_rgb.test.result <- test(svm_rgb.result, test_rgb)
+svm_rgb.test.accuracy <- 1 - mean(svm_rgb.test.result != test_rgb[,1])
+svm_rgb.test.accuracy
+```
+
+# Step 3.4 Random Forest (Random Forest + RGB)
+
+```{r}
+# rf_rgb.result <- train_rf(train_rgb)
+# save(rf_rgb.result,file="../output/rf_rgb.result.RData")
+```
+
+```{r}
+load("../output/rf_rgb.result.RData")
+rf_rgb.result.time <- rf_rgb.result$time
+rf_rgb.result.time
+rf_rgb.test.result <- test(rf_rgb.result, test_rgb)
+rf_rgb.test.accuracy <- 1 - mean(rf_rgb.test.result != test_rgb[,1])
+rf_rgb.test.accuracy
+```
+
+# Step 3.5 Logistic Regression (Logistic Regression + RGB)
+
+```{r}
+# lr_rgb.result <- train_lr.cv(train_rgb)
+# save(lr_rgb.result,file="../output/lr_rgb.result.RData")
+```
+
+```{r}
+load("../output/lr_rgb.result.RData")
+lr_rgb.result.time <- lr_rgb.result$time
+lr_rgb.result.time
+
+lr_rgb.test.result <- test(lr_rgb.result,test_rgb)
+lr_rgb.test.accuracy <- 1 - mean(lr_rgb.test.result !=test_rgb[,1])
+lr_rgb.test.accuracy
+```
+
+# Step 3.6. XGBoost (XGBoost + RGB)
+
+```{r}
+# library(xgboost)
+# df <- read.csv("../output/rgb_feature.csv", header=FALSE)
+# labels <- read.csv("../data/label_train.csv")
+# df$label <- as.factor(labels$label)
+# df$V1 <- NULL
+# 
+# # Relabel factors for XGBoost specific num_classes requirement
+# levels(df$label)[levels(df$label)=="1"] <- "0"
+# levels(df$label)[levels(df$label)=="2"] <- "1"
+# levels(df$label)[levels(df$label)=="3"] <- "2"
+# 
+# #XGBoost Algorithm
+# set.seed(031918)
+# test.i <- sample(1:nrow(df), .3*nrow(df), replace=FALSE)
+# test.data <- df[test.i,]
+# train.data <- df[-test.i,]
+# 
+# target.i <- which(colnames(df) == 'label')
+# train.data <- df[-test.i, -target.i]
+# train.target <- df[-test.i, target.i]
+# 
+# t1=Sys.time()
+# model3 <- xgb.cv(data = as.matrix(train.data), label = train.target, nfold=10,
+#                  nrounds = 2, objective = "multi:softmax", num_class = 4)
+# t2=Sys.time()
+# t2-t1
+# model3$time = t2-t1
+# save(model3,file="../output/XGBoost_RGB.result.RData")
+```
+
+
+```{r}
+load("../output/XGBoost_RGB.result.RData")
+XGBoost_RGB.test.accuracy <- 1-model3$evaluation_log$test_merror_mean[2]
+XGBoost_RGB.test.accuracy 
+model3$time
+```
+
