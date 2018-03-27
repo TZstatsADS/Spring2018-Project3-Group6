@@ -49,9 +49,9 @@ source("../lib/data_split.R")
  We devided the whole training set into 'df_train'-training data (80%)  & 'df_test'-testing data (20%)
  
 ```{r, eval=FALSE}
-datasplit_hog <- data_split("SIFT") 
-train_sift<- datasplit_hog$df_train
-# test_sift <- datasplit_hog$df_test
+datasplit_sift <- data_split("SIFT") 
+train_sift<- datasplit_sift$df_train
+test_sift <- datasplit_sift$df_test
 ```
 
 # Step 1.2. Baseline-GBM (GBM+SIFT)
@@ -63,8 +63,8 @@ baseline.time
 
 # training.accuracy <- 1-baseline.result[["fit"]][["train.error"]][400]
 # training.accuracy
-baseline.test.result <- test_gbm(baseline.result, datasplit_hog$df_test)
-baseline.test.accuracy <- 1 - mean(baseline.test.result != datasplit_hog$df_test[,1])
+baseline.test.result <- test_gbm(baseline.result, datasplit_sift$df_test)
+baseline.test.accuracy <- 1 - mean(baseline.test.result != datasplit_sift$df_test[,1])
 baseline.test.accuracy
 ```
 
@@ -73,8 +73,8 @@ baseline.test.accuracy
 # Step 1.3.1 Training Process of SVM model
  
 ```{r, eval = FALSE}
-svm_SIFT.result <- train_svm(SIFT_train)
-save(svm_SIFT.result,file="../output/svm_SIFT.result.RData")
+#svm_SIFT.result <- train_svm(SIFT_train)
+#save(svm_SIFT.result,file="../output/svm_SIFT.result.RData")
 ```
 
 # Step 1.3.2 Test of SVM model 
@@ -84,8 +84,8 @@ load("../output/svm_SIFT.result.RData")
 svm_SIFT.result.time <- svm_SIFT.result$time
 svm_SIFT.result.time
 
-svm_SIFT.test.result <- test(svm_SIFT.result, datasplit_hog$df_test)
-svm_SIFT.test.accuracy <- 1 - mean(svm_SIFT.test.result != datasplit_hog$df_test[,1])
+svm_SIFT.test.result <- test(svm_SIFT.result, datasplit_sift$df_test)
+svm_SIFT.test.accuracy <- 1 - mean(svm_SIFT.test.result != datasplit_sift$df_test[,1])
 svm_SIFT.test.accuracy
 ```
 
@@ -94,8 +94,8 @@ svm_SIFT.test.accuracy
 # Step 1.4.1 Training Process of SVM model
  
 ```{r, eval = FALSE}
-rf_SIFT.result <- train_rf(SIFT_train)
-save(rf_SIFT.result,file="../output/rf_SIFT.result.RData")
+#rf_SIFT.result <- train_rf(SIFT_train)
+#save(rf_SIFT.result,file="../output/rf_SIFT.result.RData")
 ```
 
 # Step 1.4.2 Test of Random Forest Model
@@ -106,8 +106,8 @@ rf_SIFT.result.time <- rf_SIFT.result$time
 rf_SIFT.result.time
 
 
-rf_SIFT.test.result <- test(rf_SIFT.result, datasplit_hog$df_test)
-rf_SIFT.test.accuracy <- 1 - mean(rf_SIFT.test.result != datasplit_hog$df_test[,1])
+rf_SIFT.test.result <- test(rf_SIFT.result, datasplit_sift$df_test)
+rf_SIFT.test.accuracy <- 1 - mean(rf_SIFT.test.result != datasplit_sift$df_test[,1])
 rf_SIFT.test.accuracy
 ```
 
@@ -116,8 +116,8 @@ rf_SIFT.test.accuracy
 # Step 1.5.1 Training Process of Logistic Regression model
  
 ```{r, eval = FALSE}
-lr_SIFT.result <- train_lr(SIFT_train)
-save(lr_SIFT.result,file="../output/lr_SIFT.result.RData")
+#lr_SIFT.result <- train_lr(SIFT_train)
+#save(lr_SIFT.result,file="../output/lr_SIFT.result.RData")
 ```
 
 # Step 1.5.2 Test of Logistic Regression Model
@@ -127,8 +127,8 @@ load("../output/lr_SIFT.result.RData")
 lr_SIFT.result.time <- lr_SIFT.result$time
 lr_SIFT.result.time
 
-lr_SIFT.test.result <- test(lr_SIFT.result, datasplit_hog$df_test)
-lr_SIFT.test.accuracy <- 1 - mean(lr_SIFT.test.result != datasplit_hog$df_test[,1])
+lr_SIFT.test.result <- test(lr_SIFT.result, datasplit_sift$df_test)
+lr_SIFT.test.accuracy <- 1 - mean(lr_SIFT.test.result != datasplit_sift$df_test[,1])
 lr_SIFT.test.accuracy
 ```
 
