@@ -2,7 +2,6 @@
 # This R file aims to find a balanced partition of training and testing data  #
 # 'df_train' is the training data (80% or 64%)                                #
 # 'df_test' is the testing data (20%)                                         #
-# 'df_cv' is the cross-validation data (16%)                                  #
 ###############################################################################
 
 
