@@ -14,9 +14,13 @@ Contribution statement:
 Project 3 Team members:
 
 Mengqi Chen (mc4396): Extracted RGB feature and built relevant models, tested all models and organized files
+
 Shan He (sh3667): Extracted Hog feature and built hog-feature, lbp-feature models, delivered presentation
+
 Yuhao Kang (yk2758): Built baseline models
+
 Michael Utomo (mu2251): XGBoost, and neural network algorithms
+
 Linna Lu (ly2424): Extracted surf feature and built relevant models
 
 
