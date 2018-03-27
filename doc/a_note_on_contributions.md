@@ -13,14 +13,10 @@ Contribution statement:
 
 Project 3 Team members:
 
-Chen, Mengqi mc4396@columbia.edu
-He, Shan sh3667@columbia.edu
-Kang, Yuhao yk2758@columbia.edu
-Utomo, Michael mu2251@columbia.edu
-Yu, Linna ly2424@columbia.edu
+Mengqi Chen (mc4396): Extracted RGB feature and built relevant models, tested all models and organized files
+Shan He (sh3667): Extracted Hog feature and built hog-feature, lbp-feature models, delivered presentation
+Yuhao Kang (yk2758): Built baseline models
+Michael Utomo (mu2251): XGBoost, and neural network algorithms
+Linna Lu (ly2424): Extracted surf feature and built relevant models
 
-Summary: 
 
-In this project, we developed a new method and improved the classification accuracy for images of blueberry muffins, fried chickens and dogs to 78% 
-
-All four of our team members designed the study. Kang developed baseline classification model for evaluation. He Shan and Michael explored feature engineering for improving the baseline model. Mengqi and Linna discussed and designed the model evaluation protocol. He Shan carried out the computation for model evaluation. All team members contributed to the GitHub repository and prepared the presentation. All team members approve our work presented in our GitHub repository including this contribution statement.
