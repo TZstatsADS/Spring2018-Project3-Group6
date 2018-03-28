@@ -8,7 +8,7 @@ output: html_document
 Data Preparation
 ```{r}
 library(xgboost)
-df <- read.csv('hog_extraction.csv', header=FALSE)
+df <- read.csv('SIFT_train.csv', header=FALSE)
 labels <- read.csv('label_train.csv')
 df$label <- as.factor(labels$label)
 ```
