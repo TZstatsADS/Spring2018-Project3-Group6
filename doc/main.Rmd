@@ -1,12 +1,15 @@
 ---
-title: "Main"
+title: "Project 3"
+author: "Group 6"
+date: "2018/3/27"
+
 output:
-  pdf_document: default
   html_notebook: default
-  word_document: default
 ---
 
-# Step 0. Install, Load packages 
+### Topic: Dogs, Fried Chicken or Blueberry Muffins?
+
+#### Step 0. Install, Load packages 
 
 Because of using the package caret, when we trained model we also perform cross validation by using the `tuneGrid` and `traincontrol` arguement, so we ignore creating cross validation R file.
 
@@ -42,9 +45,9 @@ source("../lib/test.R")
 source("../lib/data_split.R")
 ```
 
-# Step 1. Model Comparsion Based on SIFT Feature
+#### Step 1. Model Comparsion Based on SIFT Feature
 
-# Step 1.1. Load Feature
+##### Step 1.1. Load Feature
 
  We devided the whole training set into 'df_train'-training data (80%)  & 'df_test'-testing data (20%)
  
@@ -54,7 +57,7 @@ train_sift<- datasplit_sift$df_train
 test_sift <- datasplit_sift$df_test
 ```
 
-# Step 1.2. Baseline-GBM (GBM+SIFT)
+#### Step 1.2. Baseline-GBM (GBM+SIFT)
 
 ```{r}
 load("../output/baseline.result.RData")
@@ -66,16 +69,16 @@ baseline.test.accuracy <- 1 - mean(baseline.test.result != datasplit_sift$df_tes
 baseline.test.accuracy
 ```
 
-# Step 1.3. SVM (SVM + SIFT)
+#### Step 1.3. SVM (SVM + SIFT)
 
-# Step 1.3.1 Training Process of SVM model
+##### Step 1.3.1 Training Process of SVM model
  
 ```{r, eval = FALSE}
 #svm_SIFT.result <- train_svm(SIFT_train)
 #save(svm_SIFT.result,file="../output/svm_SIFT.result.RData")
 ```
 
-# Step 1.3.2 Test of SVM model 
+##### Step 1.3.2 Test of SVM model 
 
 ```{r}
 load("../output/svm_SIFT.result.RData")
@@ -87,16 +90,16 @@ svm_SIFT.test.accuracy <- 1 - mean(svm_SIFT.test.result != datasplit_sift$df_tes
 svm_SIFT.test.accuracy
 ```
 
-# Step 1.4. Random Forest (Random Forest + SIFT)
+#### Step 1.4. Random Forest (Random Forest + SIFT)
 
-# Step 1.4.1 Training Process of SVM model
+##### Step 1.4.1 Training Process of SVM model
  
 ```{r, eval = FALSE}
 #rf_SIFT.result <- train_rf(SIFT_train)
 #save(rf_SIFT.result,file="../output/rf_SIFT.result.RData")
 ```
 
-# Step 1.4.2 Test of Random Forest Model
+##### Step 1.4.2 Test of Random Forest Model
 
 ```{r}
 load("../output/rf_SIFT.result.RData")
@@ -109,16 +112,16 @@ rf_SIFT.test.accuracy <- 1 - mean(rf_SIFT.test.result != datasplit_sift$df_test[
 rf_SIFT.test.accuracy
 ```
 
-# Step 1.5. Logistic Regression (Logistic Regression + SIFT)
+#### Step 1.5. Logistic Regression (Logistic Regression + SIFT)
 
-# Step 1.5.1 Training Process of Logistic Regression model
+##### Step 1.5.1 Training Process of Logistic Regression model
  
 ```{r, eval = FALSE}
 #lr_SIFT.result <- train_lr(SIFT_train)
 #save(lr_SIFT.result,file="../output/lr_SIFT.result.RData")
 ```
 
-# Step 1.5.2 Test of Logistic Regression Model
+##### Step 1.5.2 Test of Logistic Regression Model
 
 ```{r}
 load("../output/lr_SIFT.result.RData")
@@ -130,78 +133,8 @@ lr_SIFT.test.accuracy <- 1 - mean(lr_SIFT.test.result != datasplit_sift$df_test[
 lr_SIFT.test.accuracy
 ```
 
-# Step 1.6. Neural network (Neural network+SIFT)
 
-```{r}
-# library(neuralnet)
-# library(nnet)
-# df <- read.csv('SIFT_train.csv', header=FALSE)
-# labels <- read.csv('label_train.csv')
-# df$label <- as.factor(labels$label) #add a column called label to df
-# df$V1 <- NULL
-# 
-# # Scale Data
-# scl <- function(x){(x-min(x))/(max(x)-min(x))}
-# target.i <- which(colnames(df)=='label')
-# df[,-target.i] <- data.frame(lapply(df[,-target.i], scl))
-# 
-# # Dummy code Outcome Variable
-# # Create 3 variables that pertains the labels are that being predicted
-# df$l1 <- ifelse(df$label=="1", 1,0)
-# df$l2 <- ifelse(df$label=="2", 1,0)
-# df$l3 <- ifelse(df$label=="3", 1,0)
-# df$label <- NULL
-# 
-# # Split into training and test
-# set.seed(031818)
-# test.i <- sample(1:nrow(df), .3*nrow(df), replace=FALSE)
-# test.data <- df[test.i,]
-# train.data <- df[-test.i,]
-# test.target <- labels[test.i, 'label']
-# 
-# # Set up formula
-# n <- names(train.data)
-# f <- as.formula(paste("l1 + l2 + l3 ~",paste(n[!n %in% c("l1","l2","l3")], collapse="+")))
-# 
-# # Gridsearch: Creating hyperparameter, allows to train on all combinations of tuning parameters
-# nn.tune <- expand.grid(hidden=seq(0,10, by=1),
-#                        act.fct=c("logistic"))
-# nn.tune$accuracy <- numeric(nrow(nn.tune))
-# 
-# for(i in 1:nrow(nn.tune)){
-#   t1 = Sys.time()
-# nn <- neuralnet(f,
-#                 data=train.data,
-#                 hidden=nn.tune$hidden[i],
-#                 act.fct=nn.tune$act.fct[i],
-#                 linear.output=FALSE,
-#                 lifesign="minimal")
-# pr.nn <- compute(nn, test.data[1:2000])
-# nn.pred <- apply(pr.nn$net.result, 1, which.max)
-# nn.tune$accuracy[i] <- mean(nn.pred==test.target)
-# t2 <- Sys.time()
-# print(t2-t1)
-# }
-# 
-# # Best parameter
-# best.params <- nn.tune[which.max(nn.tune$accuracy), c('hidden', 'act.fct')]
-# #Retrain our best model
-# t1_1 = Sys.time()
-# nn <- neuralnet(f,
-#                 data=train.data,
-#                 hidden=best.params$hidden,
-#                 act.fct=best.params$act.fct,
-#                 linear.output=FALSE,
-#                 lifesign="minimal")
-# pr.nn <- compute(nn, test.data[1:2000])
-# nn.pred <- apply(pr.nn$net.result, 1, which.max)
-# best.accuracy <- mean(nn.pred==test.target)
-# t2_1 <- Sys.time()
-# print(t2_1-t1_1)
-# print(paste('Our best accuracy was', best.accuracy))
-```
-
-# Step 1.7. XGBoost ( XGBoost + SIFT)
+#### Step 1.6. XGBoost ( XGBoost + SIFT)
 
 ```{r echo=TRUE}
 # library(xgboost)
@@ -241,9 +174,10 @@ XGBoost_SIFT.test.accuracy <- 1-model$evaluation_log$test_merror_mean[2]
 XGBoost_SIFT.test.accuracy 
 model$time
 ```
-# Step 2. Model Comparsion Based on HOG Feature
 
-# Step 2.1 Retrieve and split the training and test data from the dataset
+### Step 2. Model Comparsion Based on HOG Feature
+
+#### Step 2.1 Retrieve and split the training and test data from the dataset
 
 ```{r}
 datasplit_hog <- data_split("hog_extraction1")
@@ -251,16 +185,16 @@ train_hog <- datasplit_hog$df_train
 test_hog <- datasplit_hog$df_test
 ```
 
-# Step 2.2 GBM (GBM + HOG)
+#### Step 2.2 GBM (GBM + HOG)
 
-# Step 2.2.1 Training Process of SVM model
+##### Step 2.2.1 Training Process of SVM model
 
 ```{r}
 # GBM_hog <- train_gbm(train_hog)
 # save(GBM_hog,file="../output/GBM_hog.RData")
 ```
 
-# Step 2.2.2 Test of GBM Model
+##### Step 2.2.2 Test of GBM Model
 
 ```{r}
 load("../output/GBM_hog.RData")
@@ -272,16 +206,16 @@ GBM.test.accuracy_hog <- mean(GBM.test.result_hog == test_hog[,1])
 GBM.test.accuracy_hog
 ```
 
-# Step 2.3 SVM (SVM + HOG)
+#### Step 2.3 SVM (SVM + HOG)
 
-# Step 2.3.1 Training Process of SVM model
+##### Step 2.3.1 Training Process of SVM model
 
 ```{r}
 # SVM_hog <- train_svm(train_hog)
 # save(SVM_hog,file="../output/SVM_hog.RData")
 ```
 
-# Step 2.3.2 Test of SVM Model
+##### Step 2.3.2 Test of SVM Model
 
 ```{r}
 load("../output/SVM_hog.RData")
@@ -293,16 +227,16 @@ SVM.test.accuracy_hog <- mean(SVM.test.result_hog == test_hog[,1])
 SVM.test.accuracy_hog
 ```
 
-# Step 2.4 Random Forest (Random Forest + HOG)
+#### Step 2.4 Random Forest (Random Forest + HOG)
 
-# Step 2.4.1 Training Process of Random Forest model
+##### Step 2.4.1 Training Process of Random Forest model
 
 ```{r}
 # RF_hog <- train_rf(train_hog)
 # save(RF_hog,file="../output/RF_hog.RData")
 ```
 
-# Step 2.4.2 Test of Random Forest Model
+##### Step 2.4.2 Test of Random Forest Model
 
 ```{r}
 load("../output/RF_hog.RData")
@@ -314,16 +248,16 @@ RF.test.accuracy_hog <- mean(RF.test.result_hog == test_hog[,1])
 RF.test.accuracy_hog
 ```
 
-# Step 2.5 Logistic Regression (Logistic Regression + HOG)
+#### Step 2.5 Logistic Regression (Logistic Regression + HOG)
 
-# Step 2.5.1 Training Process of Logistic Regression model
+##### Step 2.5.1 Training Process of Logistic Regression model
 
 ```{r}
 # LR_hog <- train_lr.cv(train_hog)
 # save(LR_hog,file="../output/LR_hog.RData")
 ```
 
-# Step 2.5.2 Test of Logistic Regression Model
+##### Step 2.5.2 Test of Logistic Regression Model
 
 ```{r}
 load("../output/LR_hog.RData")
@@ -335,7 +269,7 @@ LR.test.accuracy_hog <- mean(LR.test.result_hog == test_hog[,1])
 LR.test.accuracy_hog
 ```
 
-# Step 2.6. XGBoost (XGBoost + HOG)
+#### Step 2.6. XGBoost (XGBoost + HOG)
 ```{r}
 # # the procedure would be as the same as the SIFT feature part but change the feature file int othe HOG features
 # library(xgboost)
@@ -377,9 +311,9 @@ model2$time
 ```
 
 
-# Step 3. Model Comparsion Based on RGB Feature
+### Step 3. Model Comparsion Based on RGB Feature
 
-# Step 3.1 Retrieve and split the training and test data from the dataset
+#### Step 3.1 Retrieve and split the training and test data from the dataset
 
 ```{r}
 datasplit_rgb <- data_split("rgb_feature")
@@ -387,7 +321,7 @@ train_rgb <- datasplit_rgb$df_train
 test_rgb <- datasplit_rgb$df_test
 ```
 
-# Step 3.2 GBM (GBM + RBG)
+##### Step 3.2 GBM (GBM + RBG)
 
 ```{r}
 # GBM_rgb <- train_gbm(train_rgb)
@@ -405,7 +339,7 @@ GBM.test.accuracy_rgb
 ```
 
 
-# Step 3.3 SVM (SVM + RGB)
+#### Step 3.3 SVM (SVM + RGB)
 
 ```{r}
 # svm_rgb.result <- train_svm(train_rgb)
@@ -421,7 +355,7 @@ svm_rgb.test.accuracy <- 1 - mean(svm_rgb.test.result != test_rgb[,1])
 svm_rgb.test.accuracy
 ```
 
-# Step 3.4 Random Forest (Random Forest + RGB)
+#### Step 3.4 Random Forest (Random Forest + RGB)
 
 ```{r}
 # rf_rgb.result <- train_rf(train_rgb)
@@ -437,7 +371,7 @@ rf_rgb.test.accuracy <- 1 - mean(rf_rgb.test.result != test_rgb[,1])
 rf_rgb.test.accuracy
 ```
 
-# Step 3.5 Logistic Regression (Logistic Regression + RGB)
+#### Step 3.5 Logistic Regression (Logistic Regression + RGB)
 
 ```{r}
 # lr_rgb.result <- train_lr.cv(train_rgb)
@@ -454,7 +388,7 @@ lr_rgb.test.accuracy <- 1 - mean(lr_rgb.test.result !=test_rgb[,1])
 lr_rgb.test.accuracy
 ```
 
-# Step 3.6. XGBoost (XGBoost + RGB)
+#### Step 3.6. XGBoost (XGBoost + RGB)
 
 ```{r}
 # library(xgboost)
