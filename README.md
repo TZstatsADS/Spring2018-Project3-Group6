@@ -16,7 +16,7 @@ Term: Spring 2018
 
 + Project summary: 
 
-In this project, we created a classification engine for images of dogs versus fried chicken versus blueberry muffins. We tried classifiers (GBM, Logistic Regression, SVM, Random Forest, XGboost and Neural Networks) under different feature extraction(Sift, HoG, RGB, surf). By comparing the accurancy rate as well as the processing time, we finally chose the best classification method.
+In this project, we created a classification engine for images of dogs versus fried chicken versus blueberry muffins. We tried classifiers (GBM, Logistic Regression, SVM, Random Forest, XGboost and Neural Networks) under different feature extraction(Sift, HoG, RGB). By comparing the accurancy rate as well as the processing time, we finally chose the best classification method.
 	
 **Contribution statement**: 
 
