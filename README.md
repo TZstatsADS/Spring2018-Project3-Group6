@@ -25,7 +25,7 @@ Contribution Statement:
 
 1. Mengqi Chen (mc4396): Extracted RGB feature and built relevant models, tested all models and organized files
 2. Shan He (sh3667): Extracted Hog feature and built hog-feature, lbp-feature models, delivered presentation
-3. Yuhao Kang (yk2758): Built baseline models
+3. Yuhao Kang (yk2758): Built baseline model, SVM, Random Forest and Logistic Regression models
 4. Michael Utomo (mu2251): XGBoost, and neural network algorithms
 5. Linna Lu (ly2424): Extracted surf feature and built relevant models
 
