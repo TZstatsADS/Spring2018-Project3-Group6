@@ -8,6 +8,10 @@ output:
 ---
 
 ### Topic: Dogs, Fried Chicken or Blueberry Muffins?
+![Chart](../figs/chart.png)
+
+
+![Hist](../figs/hist.png)
 
 #### Step 0. Install, Load packages 
 
